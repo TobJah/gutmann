@@ -47,7 +47,7 @@ Welche dieser Nachrichten betreffen den Kunden und warum? Antworte in 2-3 Sätze
     console.log("✉️ Prompt an GPT:", prompt.slice(0, 500), "...");
 
     const chat = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
