@@ -14,7 +14,7 @@ export default function HomePage() {
 
         <ul className="list-disc list-inside mt-4 space-y-2">
           <li>
-            <strong>Real-Time Insights:</strong> Verstehen Sie, wie aktuelle
+            <strong>Gutmann-Affinity:</strong> Verstehen Sie, wie aktuelle
             wirtschaftliche Ereignisse Ihr Portfolio beeinflussen.
           </li>
           <li>

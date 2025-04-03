@@ -35,13 +35,13 @@ export async function POST(req: NextRequest) {
       .join("\n");
 
     const prompt = `
-Hier ist das Depot eines Kunden: ${portfolio.join(", ")}.
+Hier ist unser Depot: ${portfolio.join(", ")}.
 
 Hier sind aktuelle Wirtschaftsnachrichten:
 
 ${newsText}
 
-Welche dieser Nachrichten betreffen den Kunden und warum? Antworte in 2-3 Sätzen, einfach erklärt.
+Kannst du die für unser Depot relevanten News für die Berater der Bank zusammenfassen. Bitte gib die wichtigsten Inhalte wieder in 5 Sätzen.
 `;
 
     console.log("✉️ Prompt an GPT:", prompt.slice(0, 500), "...");

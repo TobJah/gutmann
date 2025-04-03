@@ -8,7 +8,7 @@ export default function InsightsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const portfolio = ["Apple", "Tesla", "Allianz"];
+  const portfolio = ["Apple", "Tesla", "Meta"];
 
   useEffect(() => {
     const fetchInsights = async () => {
@@ -36,10 +36,10 @@ export default function InsightsPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f3ee] text-[#0d2f1d] p-8">
-      <h1 className="text-2xl font-bold mb-4">Real-Time Insights</h1>
+      <h1 className="text-2xl font-bold mb-4">FinSights</h1>
 
       <div className="mb-6 bg-white p-4 rounded shadow max-w-3xl">
-        <h2 className="font-semibold text-lg mb-2">Ihr Portfolio:</h2>
+        <h2 className="font-semibold text-lg mb-2">Demo Portfolio:</h2>
         <ul className="list-disc list-inside text-sm">
           {portfolio.map((stock) => (
             <li key={stock}>{stock}</li>
@@ -52,7 +52,7 @@ export default function InsightsPage() {
 
       {insight && (
         <div className="bg-white p-4 rounded shadow mb-6 max-w-3xl">
-          <h2 className="font-semibold text-lg mb-2">GPT-Einschätzung:</h2>
+          <h2 className="font-semibold text-lg mb-2">News-Zusammenfassung:</h2>
           <p className="whitespace-pre-line text-sm">{insight}</p>
         </div>
       )}
