@@ -14,10 +14,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <h1 className="text-xl font-bold text-[#0d2f1d]">Gutmann Demo</h1>
           <nav className="space-x-6 text-sm">
             <Link href="/insights" className="text-[#0d2f1d] hover:text-green-800">
-              Gutmann Affinity
+              FinSights
             </Link>
             <Link href="/network" className="text-[#0d2f1d] hover:text-green-800">
-              FinSights
+              Gutmann Affinity
             </Link>
           </nav>
         </header>

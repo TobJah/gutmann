@@ -4,7 +4,7 @@ import axios from "axios";
 
 console.log("✅ [API] /api/insights gestartet");
 console.log("🔐 OPENAI_API_KEY vorhanden:", !!process.env.OPENAI_API_KEY);
-console.log("🔐 NEWS_API_KEY vorhanden:", !!process.env.NEWS_API_KEY);
+console.log("🔐 FINNHUB_API_KEY vorhanden:", !!process.env.FINNHUB_API_KEY);
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -15,39 +15,43 @@ export async function POST(req: NextRequest) {
     const { portfolio } = await req.json();
     console.log("📦 Portfolio empfangen:", portfolio);
 
-    // News holen
-    const newsRes = await axios.get("https://newsapi.org/v2/everything", {
-        params: {
-          domains: "bloomberg.com",
-          from: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-          sortBy: "publishedAt",
-          language: "en",
-          pageSize: 50,
-          apiKey: process.env.NEWS_API_KEY,
-        },
+    // Berechne das Startdatum (3 Tage zurück)
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    // Hole aktuelle News von Finnhub
+    const newsRes = await axios.get("https://finnhub.io/api/v1/news", {
+      params: {
+        category: "general", // Alternativ: "forex", "crypto", etc.
+        token: process.env.FINNHUB_API_KEY,
+      },
     });
 
-    const news = newsRes.data.articles;
-    console.log(`📰 ${news.length} Newsartikel geladen`);
+    // Filtere News der letzten 3 Tage
+    const news = newsRes.data.filter((item: any) => {
+      const publishedDate = new Date(item.datetime * 1000);
+      return publishedDate >= new Date(threeDaysAgo);
+    });
+
+    console.log(`📰 ${news.length} Newsartikel von Finnhub (seit ${threeDaysAgo}) geladen`);
 
     const newsText = news
-      .map((n: any) => `• ${n.title} – ${n.description || ""}`)
+      .map((n: any) => `• ${n.headline} – ${n.summary || ""}`)
       .join("\n");
 
     const prompt = `
-Hier ist unser Depot: ${portfolio.join(", ")}.
+Hier ist das Depot eines Kunden: ${portfolio.join(", ")}.
 
 Hier sind aktuelle Wirtschaftsnachrichten:
 
 ${newsText}
 
-Kannst du die für unser Depot relevanten News für die Berater der Bank zusammenfassen. Bitte gib die wichtigsten Inhalte wieder in 5 Sätzen.
+Welche dieser Nachrichten betreffen dieses Depot direkt oder indirekt? Gib eine einfache, deutsche Zusammenfassung in 5 Sätzen.
 `;
 
-    console.log("✉️ Prompt an GPT:", prompt.slice(0, 500), "...");
+    console.log("✉️ Prompt an GPT (gekürzt):", prompt.slice(0, 400), "...");
 
     const chat = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-3.5-turbo", // Oder "gpt-4"
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
@@ -57,12 +61,19 @@ Kannst du die für unser Depot relevanten News für die Berater der Bank zusamme
 
     return NextResponse.json({
       insight: answer,
-      usedNews: news.map((n: any) => ({ title: n.title })),
+      usedNews: news.map((n: any) => ({
+        title: n.headline,
+        source: n.source,
+        datetime: new Date(n.datetime * 1000).toLocaleString(),
+      })),
     });
   } catch (err: any) {
     console.error("❌ Fehler in /api/insights:", err);
     return NextResponse.json(
-      { error: "Interner Serverfehler", detail: err?.message ?? "Unbekannter Fehler" },
+      {
+        error: "Interner Serverfehler",
+        detail: err?.message ?? "Unbekannter Fehler",
+      },
       { status: 500 }
     );
   }
